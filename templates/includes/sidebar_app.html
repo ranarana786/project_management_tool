@@ -1,18 +1,28 @@
 {% load i18n %}
+{% load static %}
 {% load waffle_tags %}
-<div class="flex min-h-full flex-col bg-primary text-primary-content
+<div class="flex min-h-full flex-col bg-[#0525A8] text-primary-content
             is-drawer-close:w-14 is-drawer-open:w-64 transition-[width] duration-300 overflow-hidden">
 
   <!-- Header: Logo/branding + desktop toggle button -->
   <div class="flex items-center px-2 py-3 min-h-16 gap-2">
     <a href="{% url 'landing_pages:home' %}"
-       hx-get="{% url 'landing_pages:home' %}"
-       hx-push-url="true"
-       hx-target="#page-content"
-       class="is-drawer-close:hidden flex-1 text-2xl font-bold truncate text-secondary pl-4">
-      {{ site.name }}
-      {% if env_badge %}<span class="badge badge-neutral badge-xs ml-1">{{ env_badge }}</span>{% endif %}
-    </a>
+   hx-get="{% url 'landing_pages:home' %}"
+   hx-push-url="true"
+   hx-target="#page-content"
+   class="is-drawer-close:hidden flex-1 pl-4">
+   
+   <div class="p-1.5 rounded-full bg-white/30 inline-flex">
+     <div class="p-1.5 rounded-full bg-white/60 inline-flex">
+       <img 
+         src="{% static 'images/siresoftlogo.png' %}" 
+         alt="Siresoft"
+         class="h-16 w-16 rounded-full object-contain"
+       />
+     </div>
+   </div>
+
+</a>
     <!-- Desktop collapse toggle (hidden on mobile — mobile uses the navbar hamburger) -->
     <label for="sidebar-drawer"
            class="hidden lg:flex btn btn-ghost btn-square text-primary-content shrink-0 tooltip tooltip-right"
