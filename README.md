@@ -34,7 +34,7 @@ An example demo instance is available at **[matorral.dev](https://matorral.dev/)
 
 | Credential | Value |
 |---|---|
-| Username | `demo@example.com` |
+| Username | `demo@siresoft.com` |
 | Password | `demouser789` |
 
 ## Getting Started

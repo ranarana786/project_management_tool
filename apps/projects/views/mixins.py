@@ -1,8 +1,29 @@
-from django.http import Http404
+from django.contrib import messages
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.cache import patch_vary_headers
+from django.utils.translation import gettext_lazy as _
 
 from ..forms import ProjectForm
 from ..models import Project
+
+
+class StaffRequiredMixin:
+    """Only staff/admin users can create, update, or delete projects."""
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            messages.error(request, _("You are not authorized for this access."))
+            redirect_url = reverse(
+                "projects:project_list",
+                kwargs={"workspace_slug": request.workspace.slug},
+            )
+            if request.htmx:
+                from django_htmx.http import HttpResponseClientRedirect
+                return HttpResponseClientRedirect(redirect_url)
+            return HttpResponseRedirect(redirect_url)
+        return super().dispatch(request, *args, **kwargs)
 
 
 class ProjectViewMixin:

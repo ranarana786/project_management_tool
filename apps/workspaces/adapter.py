@@ -41,9 +41,5 @@ class AcceptInvitationAdapter(UserEmailAsUsernameAdapter):
             except Invitation.DoesNotExist:
                 pass
 
-        if request.user.is_authenticated:
-            workspace = request.user.workspaces.first()
-            if workspace:
-                return workspace.get_absolute_url()
-
-        return getattr(settings, "LOGIN_REDIRECT_URL", "/")
+        # Redirect to workspace list after login instead of first workspace
+        return getattr(settings, "LOGIN_REDIRECT_URL", "/w/")

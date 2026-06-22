@@ -48,7 +48,7 @@ class InvitationFactory(factory.django.DjangoModelFactory):
         model = Invitation
 
     workspace = factory.SubFactory(WorkspaceFactory)
-    email = factory.LazyAttribute(lambda obj: f"invited-{obj.workspace.slug}@example.com")
+    email = factory.LazyAttribute(lambda obj: f"invited-{obj.workspace.slug}@siresoft.com")
     role = ROLE_MEMBER
     invited_by = factory.SubFactory(UserFactory)
     is_accepted = False

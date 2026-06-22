@@ -199,7 +199,7 @@ else:
 
 AUTH_USER_MODEL = "users.User"
 LOGIN_URL = "account_login"
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/w/"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -232,10 +232,10 @@ ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_USER_DISPLAY = lambda user: user.get_display_name()  # noqa: E731
 
 ACCOUNT_FORMS = {
-    "signup": "apps.workspaces.forms.WorkspaceSignupForm",
+    # "signup": "apps.workspaces.forms.WorkspaceSignupForm",
 }
 SOCIALACCOUNT_FORMS = {
-    "signup": "apps.users.forms.CustomSocialSignupForm",
+    # "signup": "apps.users.forms.CustomSocialSignupForm",
 }
 SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
 
@@ -332,6 +332,12 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="matagus@gmail.com")
 
 # Console backend prints emails locally; override in .env or production settings.
 EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
+
+EMAIL_HOST = env("EMAIL_HOST", default="localhost")
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 
 EMAIL_SUBJECT_PREFIX = "[matorral] "
 

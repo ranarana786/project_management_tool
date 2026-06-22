@@ -2,8 +2,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseNotAllowed, HttpResponseRedirect
+from django_htmx.http import HttpResponseClientRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.cache import patch_vary_headers
@@ -16,7 +17,7 @@ from apps.users.models import User
 from apps.workspaces.mixins import LoginAndWorkspaceRequiredMixin
 
 from allauth.account.models import EmailAddress
-from allauth.account.views import SignupView
+# from allauth.account.views import SignupView
 from django_htmx.http import HttpResponseClientRedirect
 
 from .decorators import login_and_workspace_membership_required, workspace_admin_required
@@ -169,42 +170,42 @@ def accept_invitation(request, invitation_id):
     )
 
 
-class SignupAfterInvite(SignupView):
-    @cached_property
-    def invitation(self) -> Invitation:
-        invitation_id = self.kwargs["invitation_id"]
-        invitation = get_object_or_404(Invitation, id=invitation_id)
-        if invitation.is_accepted:
-            messages.error(
-                self.request,
-                _("Sorry, it looks like that invitation link has expired."),
-            )
-            raise Http404
-        return invitation
-
-    def get_initial(self):
-        initial = super().get_initial()
-        if self.invitation:
-            initial["workspace_name"] = self.invitation.workspace.name
-            initial["email"] = self.invitation.email
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.invitation:
-            context["invitation"] = self.invitation
-        return context
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        if settings.ACCOUNT_EMAIL_VERIFICATION != "none" and hasattr(self, "user") and self.invitation:
-            try:
-                email_address = EmailAddress.objects.get(user=self.user, email=self.invitation.email)
-            except EmailAddress.DoesNotExist:
-                email_address = None
-            if email_address:
-                email_address.set_verified(commit=True)
-        return response
+# class SignupAfterInvite(SignupView):
+#     @cached_property
+#     def invitation(self) -> Invitation:
+#         invitation_id = self.kwargs["invitation_id"]
+#         invitation = get_object_or_404(Invitation, id=invitation_id)
+#         if invitation.is_accepted:
+#             messages.error(
+#                 self.request,
+#                 _("Sorry, it looks like that invitation link has expired."),
+#             )
+#             raise Http404
+#         return invitation
+#
+#     def get_initial(self):
+#         initial = super().get_initial()
+#         if self.invitation:
+#             initial["workspace_name"] = self.invitation.workspace.name
+#             initial["email"] = self.invitation.email
+#         return initial
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         if self.invitation:
+#             context["invitation"] = self.invitation
+#         return context
+#
+#     def form_valid(self, form):
+#         response = super().form_valid(form)
+#         if settings.ACCOUNT_EMAIL_VERIFICATION != "none" and hasattr(self, "user") and self.invitation:
+#             try:
+#                 email_address = EmailAddress.objects.get(user=self.user, email=self.invitation.email)
+#             except EmailAddress.DoesNotExist:
+#                 email_address = None
+#             if email_address:
+#                 email_address.set_verified(commit=True)
+#         return response
 
 
 @login_and_workspace_membership_required
@@ -305,6 +306,11 @@ def delete_workspace(request, workspace_slug):
 
 @login_required
 def create_workspace(request):
+    if not request.user.is_staff:
+        messages.error(request, _("You are not authorized for this access."))
+        if request.htmx:
+            return HttpResponseClientRedirect(reverse("landing_pages:home"))
+        return HttpResponseRedirect(reverse("landing_pages:home"))
     if request.method == "POST":
         form = WorkspaceChangeForm(request.POST)
         if form.is_valid():

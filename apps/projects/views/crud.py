@@ -43,7 +43,7 @@ from ..forms import ProjectDetailInlineEditForm, ProjectRowInlineEditForm
 from ..models import Project, ProjectStatus
 from ..registry import build_project_bulk_action_context
 from ..tasks import start_move_operation
-from .mixins import ProjectFormMixin, ProjectSingleObjectMixin, ProjectViewMixin
+from .mixins import ProjectFormMixin, ProjectSingleObjectMixin, ProjectViewMixin, StaffRequiredMixin
 
 User = get_user_model()
 
@@ -247,9 +247,14 @@ class ProjectDetailView(
 
         return context
 
-
-class ProjectCreateView(LoginAndWorkspaceRequiredMixin, ProjectViewMixin, ProjectFormMixin, CreateView):
-    """Create a new project."""
+class ProjectCreateView(
+    StaffRequiredMixin,                  
+    LoginAndWorkspaceRequiredMixin,
+    ProjectViewMixin,
+    ProjectFormMixin,
+    CreateView,
+):
+    """Create a new project — staff only."""
 
     template_name = "projects/project_form.html"
 
@@ -270,20 +275,16 @@ class ProjectCreateView(LoginAndWorkspaceRequiredMixin, ProjectViewMixin, Projec
 
     def get_initial(self):
         initial = super().get_initial()
-
-        # If only one workspace member, auto-select as lead
         workspace_members = self.request.workspace_members
         if workspace_members is not None and len(workspace_members) == 1:
             initial["lead"] = workspace_members[0].pk
         else:
-            # Preset lead from the most recently created project
             try:
                 latest_project = Project.objects.for_workspace(self.workspace).values("lead_id").latest("created_at")
                 if latest_project["lead_id"]:
                     initial["lead"] = latest_project["lead_id"]
             except Project.DoesNotExist:
                 pass
-
         return initial
 
     def form_valid(self, form):
@@ -312,15 +313,14 @@ class ProjectCreateView(LoginAndWorkspaceRequiredMixin, ProjectViewMixin, Projec
 
         return redirect(self.object.get_absolute_url())
 
-
-class ProjectUpdateView(
+class ProjectUpdateView(           
     LoginAndWorkspaceRequiredMixin,
     ProjectViewMixin,
     ProjectSingleObjectMixin,
     ProjectFormMixin,
     UpdateView,
 ):
-    """Update an existing project."""
+    """Update an existing project — staff only."""
 
     template_name = "projects/project_form.html"
 
@@ -337,13 +337,13 @@ class ProjectUpdateView(
         return super().form_valid(form)
 
 
-class ProjectDeleteView(
+class ProjectDeleteView(  
     LoginAndWorkspaceRequiredMixin,
     ProjectViewMixin,
     ProjectSingleObjectMixin,
     DeleteView,
 ):
-    """Delete a project."""
+    """Delete a project — staff only."""
 
     template_name = "projects/project_confirm_delete.html"
 
@@ -361,7 +361,6 @@ class ProjectDeleteView(
         context["page_title"] = _("Delete %s") % project.name
         context["milestone_count"] = Milestone.objects.for_project(project).count()
         context["epic_count"] = Epic.objects.for_project(project).count()
-        # Work items = all non-epic issues
         work_item_ids = list(
             BaseIssue.objects.for_project(project)
             .exclude(polymorphic_ctype_id__in=[get_epic_content_type_id(), get_milestone_content_type_id()])
@@ -377,21 +376,16 @@ class ProjectDeleteView(
         )
 
     def form_valid(self, form):
-        # Django's CASCADE delete will handle all issues (epics, work items, subtasks)
-        # No need to manually delete subtasks first
         deleted_url = self.object.get_absolute_url()
         redirect_url = self.get_success_url()
-
         self.object.delete()
         messages.success(self.request, _("Project deleted successfully."))
-
         if self.request.htmx:
             return build_htmx_delete_response(self.request, deleted_url, redirect_url)
-
         return redirect(redirect_url)
 
 
-class ProjectCloneView(LoginAndWorkspaceRequiredMixin, ProjectViewMixin, View):
+class ProjectCloneView(LoginAndWorkspaceRequiredMixin,StaffRequiredMixin, ProjectViewMixin, View):
     """Clone an existing project."""
 
     def post(self, request, *args, **kwargs):
@@ -413,7 +407,7 @@ class ProjectCloneView(LoginAndWorkspaceRequiredMixin, ProjectViewMixin, View):
 # ============================================================================
 
 
-class ProjectRowInlineEditView(LoginAndWorkspaceRequiredMixin, ProjectViewMixin, View):
+class ProjectRowInlineEditView(LoginAndWorkspaceRequiredMixin,StaffRequiredMixin, ProjectViewMixin, View):
     """Handle inline editing of project rows in list views."""
 
     def _get_context(self, request, project, form=None):
@@ -504,7 +498,7 @@ class ProjectRowInlineEditView(LoginAndWorkspaceRequiredMixin, ProjectViewMixin,
         return render(request, edit_template, context)
 
 
-class ProjectDetailInlineEditView(LoginAndWorkspaceRequiredMixin, ProjectViewMixin, View):
+class ProjectDetailInlineEditView(LoginAndWorkspaceRequiredMixin,StaffRequiredMixin,ProjectViewMixin, View):
     """Handle inline editing of project details on the detail page."""
 
     def _get_context(self, request, project, form=None):
@@ -1290,7 +1284,7 @@ class ProjectMilestoneCreateView(LoginAndWorkspaceRequiredMixin, ProjectViewMixi
         return render(self.request, self.get_template_names()[0], context)
 
 
-class ProjectMoveView(LoginAndWorkspaceRequiredMixin, ProjectViewMixin, View):
+class ProjectMoveView(LoginAndWorkspaceRequiredMixin, ProjectViewMixin, View, StaffRequiredMixin):
     """Move a single project to another workspace (POST only)."""
 
     http_method_names = ["post"]

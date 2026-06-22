@@ -61,12 +61,12 @@ urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     path("jsi18n/", JavaScriptCatalog.as_view(), name="javascript-catalog"),
     # Custom password change view with HTMX support (before allauth)
-    path(
-        "accounts/password/change/",
-        CustomPasswordChangeView.as_view(),
-        name="account_change_password",
-    ),
-    path("accounts/", include("allauth.urls")),
+    # path(
+    #     "accounts/password/change/",
+    #     CustomPasswordChangeView.as_view(),
+    #     name="account_change_password",
+    # ),
+    path("accounts/", include("allauth.urls")),  # Signup functionality commented out
     path("users/", include("apps.users.urls")),
     path("", include("apps.landing_pages.urls")),
     path("celery-progress/", include("celery_progress.urls")),

@@ -7,7 +7,7 @@
     <div class="hero-content text-center">
       <div class="max-w-2xl">
         <h1 class="text-5xl font-bold text-primary">
-          Matorral
+          Siresoft
           <span class="badge badge-primary badge-sm align-middle">{{ env_badge }}</span>
         </h1>
         <p class="pt-6 pb-2 text-base text-center">
@@ -16,10 +16,13 @@
         <p class="pb-6 text-sm text-center">
           {% translate "Made with" %} <a href="https://www.djangoproject.com/" target="_blank" rel="noopener" class="text-primary no-underline">Django</a>, <a href="https://htmx.org/" target="_blank" rel="noopener" class="text-primary no-underline">HTMX</a>, {% translate "and" %} <a href="https://tailwindcss.com/" target="_blank" rel="noopener" class="text-primary no-underline">Tailwind CSS</a>.</p>
         <div class="flex gap-4 justify-center flex-wrap" x-data="{}">
-          <a href="{% url 'account_signup' %}" class="btn btn-primary" hx-boost="true" @click="trackGAEvent('click', { event_category: 'signup', event_label: 'button' })">{% translate "Sign Up" %}</a>
-          <a href="{% url 'account_login' %}" class="btn btn-outline" hx-boost="true" @click="trackGAEvent('click', { event_category: 'signin', event_label: 'button' })">{% translate "Sign In" %}</a>
-          <a href="https://github.com/matorral-project/matorral" target="_blank" rel="noopener" class="btn btn-outline" @click="trackGAEvent('click', { event_category: 'get-it-free', event_label: 'button' })">{% translate "Get it for Free" %}</a>
-          <a href="#live-demo" class="btn btn-secondary" hx-boost="true" @click="trackGAEvent('click', { event_category: 'live-demo', event_label: 'button' })">{% translate "Live Demo" %}</a>
+          {% comment %} <a href="{% url 'account_signup' %}" class="btn btn-primary">{% translate "Sign Up" %}</a> {% endcomment %}
+          <a href="{% url 'account_login' %}" class="btn btn-outline" onclick="trackGAEvent('click', { event_category: 'signin', event_label: 'button' })">{% translate "Sign In" %}</a>
+          {% comment %} <a href="https://github.com/matorral-project/matorral" target="_blank" rel="noopener" class="btn btn-outline" @click="trackGAEvent('click', { event_category: 'get-it-free', event_label: 'button' })">{% translate "Get it for Free" %}</a> {% endcomment %}
+          {% comment %} <a href="#live-demo" class="btn btn-secondary" hx-boost="true" @click="trackGAEvent('click', { event_category: 'live-demo', event_label: 'button' })">{% translate "Live Demo" %}</a> {% endcomment %}
+          {% if user.is_authenticated %}
+          <a href="{% url 'workspaces:manage_workspaces' %}" class="btn btn-outline" onclick="trackGAEvent('click', { event_category: 'goto-dashboard', event_label: 'button' })">{% translate "Go to Dashboard" %}</a>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -33,7 +36,7 @@
           <div class="lg:max-w-lg">
             <h2 class="text-base/7 font-semibold text-primary">{% translate "Ship software. Faster." %}</h2>
             <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-3xl">{% translate "Project Management made simple." %}</p>
-            <p class="mt-6 text-lg/8 text-gray-700">{% translate "Matorral gives your team a clear, flexible way to plan and deliver." %}</p>
+            <p class="mt-6 text-lg/8 text-gray-700">{% translate "Siresoft gives your team a clear, flexible way to plan and deliver." %}</p>
             <dl class="mt-10 max-w-xl space-y-8 text-base/7 text-gray-600 lg:max-w-none">
               <div class="relative pl-9">
                 <dt class="inline font-semibold text-gray-900">
@@ -74,13 +77,6 @@
             </dl>
           </div>
         </div>
-        <img
-          src="{% static 'landing_pages/images/app-screenshot.png' %}"
-          alt="{% translate 'Matorral app screenshot' %}"
-          width="2432"
-          height="1442"
-          class="w-3xl max-w-none rounded-xl shadow-xl ring-1 ring-gray-400/10 sm:w-228 md:-ml-4 lg:-ml-0 mt-15"
-        />
       </div>
     </div>
   </section>
@@ -154,7 +150,7 @@
   </section>
 
   {# CTA Section #}
-  <section class="py-16 px-4 bg-base-200">
+  {% comment %} <section class="py-16 px-4 bg-base-200">
     <div class="max-w-2xl mx-auto text-center">
       <h2 class="text-3xl font-bold mb-4">{% translate "Ready to get started?" %}</h2>
       <div class="flex gap-4 justify-center">
@@ -162,16 +158,16 @@
         <a href="https://github.com/matorral-project/matorral" target="_blank" rel="noopener" class="btn btn-outline btn-lg">{% translate "View on GitHub" %}</a>
       </div>
     </div>
-  </section>
+  </section> {% endcomment %}
 
   {# Demo Credentials Section #}
-  <section id="live-demo" class="py-12 px-4 bg-base-200">
+  {% comment %} <section id="live-demo" class="py-12 px-4 bg-base-200">
     <div class="max-w-2xl mx-auto text-center">
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body items-center text-center">
           <h2 class="card-title text-2xl">{% translate "Live Demo" %}</h2>
           <p class="text-gray-600">
-            {% translate "Try Matorral instantly with a pre-configured demo account." %}
+            {% translate "Try Siresoft instantly with a pre-configured demo account." %}
           </p>
 
           <button
@@ -189,6 +185,6 @@
         </div>
       </div>
     </div>
-  </section>
+  </section> {% endcomment %}
 </main>
 {% endblock %}

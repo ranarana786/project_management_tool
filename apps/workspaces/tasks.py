@@ -29,7 +29,7 @@ def create_demo_project_task(workspace_id: int, user_id: int):
     create_demo_project(workspace, user)
 
 
-DEMO_USER_EMAIL = "demo@example.com"
+DEMO_USER_EMAIL = "demo@siresoft.com"
 DEMO_USER_PASSWORD = "demouser789"
 
 

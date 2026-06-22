@@ -122,7 +122,6 @@
         <span class="is-drawer-close:hidden truncate">{% translate "My Workspaces" %}</span>
       </a>
     </li>
-
     {% endif %}
   </ul>
 
@@ -145,6 +144,9 @@
             <i class="fa fa-user h-4 w-4"></i>{% translate "Profile" %}
           </a>
         </li>
+
+        {% comment %} Connected Accounts - commented out {% endcomment %}
+        {% comment %}
         <li>
           <a href="{% url 'users:connected_accounts' %}"
              hx-get="{% url 'users:connected_accounts' %}"
@@ -153,6 +155,10 @@
             <i class="fa fa-link h-4 w-4"></i>{% translate "Connected Accounts" %}
           </a>
         </li>
+        {% endcomment %}
+
+        {% comment %} Change Password - commented out {% endcomment %}
+        {% comment %}
         {% if user.has_usable_password %}
         <li>
           <a href="{% url 'account_change_password' %}"
@@ -163,6 +169,8 @@
           </a>
         </li>
         {% endif %}
+        {% endcomment %}
+
         {% if user.is_superuser %}
         <li>
           <a href="{% url 'admin:index' %}" target="_blank" rel="noopener noreferrer">
@@ -170,11 +178,12 @@
           </a>
         </li>
         {% endif %}
-        <li>
+        {% comment %} <li>
           <a href="https://github.com/matorral-project/matorral/issues" target="_blank" rel="noopener noreferrer">
             <i class="fa fa-bug h-4 w-4"></i>{% translate "Report an Issue" %}
           </a>
-        </li>
+        </li> {% endcomment %}
+        
         <li>
           <a href="{% url 'account_logout' %}">
             <i class="fa fa-sign-out h-4 w-4"></i>{% translate "Sign out" %}
